@@ -1,0 +1,96 @@
+{
+  "name": "sanity-plugin-web-vitals",
+  "version": "0.1.0",
+  "description": "Core Web Vitals, sessions by device and a live site preview in the Sanity Studio's Structure pane, with a framework-agnostic server handler (Cloudflare Web Analytics built in).",
+  "keywords": [
+    "sanity",
+    "sanity-plugin",
+    "web-vitals",
+    "core-web-vitals",
+    "cloudflare",
+    "web-analytics"
+  ],
+  "homepage": "https://github.com/dennisregalado/sanity-plugin-web-vitals#readme",
+  "bugs": {
+    "url": "https://github.com/dennisregalado/sanity-plugin-web-vitals/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dennisregalado/sanity-plugin-web-vitals.git"
+  },
+  "license": "MIT",
+  "author": "Dennis Regalado <dennis@baggy.studio>",
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./server": {
+      "import": "./dist/server.js",
+      "default": "./dist/server.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "types": "./dist/index.d.ts",
+  "browserslist": "extends @sanity/browserslist-config",
+  "files": [
+    "dist",
+    "skills",
+    "bin"
+  ],
+  "scripts": {
+    "build": "plugin-kit verify-package --silent && pkg-utils build --strict --check --clean",
+    "format": "prettier --write --cache --ignore-unknown .",
+    "link-watch": "plugin-kit link-watch",
+    "lint": "eslint .",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm test && npm run build",
+    "watch": "pkg-utils watch --strict",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@sanity/icons": "^5.4.0",
+    "@sanity/ui": "^4.4.12"
+  },
+  "devDependencies": {
+    "@sanity/pkg-utils": "^10.7.2",
+    "@sanity/plugin-kit": "^6.0.0",
+    "@types/react": "^19.2.17",
+    "@typescript-eslint/eslint-plugin": "^8.62.0",
+    "@typescript-eslint/parser": "^8.62.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-config-sanity": "^7.1.4",
+    "eslint-plugin-prettier": "^5.5.6",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "prettier": "^3.9.1",
+    "prettier-plugin-packagejson": "^3.0.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "sanity": "^6.23.0",
+    "styled-components": "^6.4.3",
+    "typescript": "^6.0.3",
+    "vitest": "^5.1.0"
+  },
+  "peerDependencies": {
+    "react": "^18 || ^19",
+    "sanity": "^5 || ^6"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "sanity": {
+      "optional": true
+    }
+  },
+  "engines": {
+    "node": ">=20.19 <22 || >=22.12"
+  },
+  "bin": {
+    "sanity-plugin-web-vitals": "bin/skills.mjs"
+  }
+}

@@ -1,0 +1,30 @@
+name: Publish
+
+# Publish a GitHub release such as v1.2.0 to publish that version to npm. (A tag trigger as
+# well would run twice: publishing a release also pushes its tag.)
+# npm trusts this workflow directly (trusted publishing): no token or 2FA code is needed.
+# Set up once on npmjs.com: package Settings > Trusted publishing > GitHub Actions,
+# repository dennisregalado/sanity-plugin-web-vitals, workflow publish.yml.
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+          cache: npm
+      - run: npm ci
+      - name: Check the tag matches package.json
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      # prepublishOnly runs lint, typecheck, tests and the build.
+      - run: npm publish --provenance --access public
