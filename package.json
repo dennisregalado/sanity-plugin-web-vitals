@@ -1,6 +1,6 @@
 {
   "name": "sanity-plugin-web-vitals",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Core Web Vitals, sessions by device and a live site preview in the Sanity Studio's Structure pane, with a framework-agnostic server handler (Cloudflare Web Analytics built in).",
   "keywords": [
     "sanity",

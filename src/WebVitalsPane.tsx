@@ -51,7 +51,24 @@ import {RANGE_OPTIONS, useWebVitals} from './useWebVitals'
  */
 
 /** The preview renders the home page at this desktop size, then scales it to the card. */
-const PREVIEW = {width: 1440, height: 900}
+/**
+ * The site preview's render size by the pane's own width (a container query, not the window's), with
+ * sanity-preview-bar's devices and breakpoints: a 375px phone below 600px, a 768px tablet below
+ * 1024px, and a 1440×900 desktop above. The card takes the device's shape, so a phone shows a
+ * portrait page.
+ */
+type PreviewSize = {width: number; height: number}
+const PREVIEW_SIZES = {
+  mobile: {width: 375, height: 812},
+  tablet: {width: 768, height: 1024},
+  desktop: {width: 1440, height: 900},
+} satisfies Record<string, PreviewSize>
+
+function previewSizeFor(paneWidth: number): PreviewSize {
+  if (paneWidth < 600) return PREVIEW_SIZES.mobile
+  if (paneWidth < 1024) return PREVIEW_SIZES.tablet
+  return PREVIEW_SIZES.desktop
+}
 const API_VERSION = '2025-05-16'
 
 const ratingBadge: Record<VitalRating, {tone: 'positive' | 'caution' | 'critical'; text: string}> =
@@ -107,11 +124,29 @@ export function WebVitalsPane({options}: {options: ResolvedWebVitalsOptions}) {
   const [range, setRange] = useState<Range>(options.defaultRange)
   const vitals = useWebVitals(range, options)
 
+  // The pane's width picks the preview's device. Until it is measured, desktop.
+  const pane = useRef<HTMLDivElement>(null)
+  const [previewSize, setPreviewSize] = useState<PreviewSize>(PREVIEW_SIZES.desktop)
+  useLayoutEffect(() => {
+    const el = pane.current
+    if (!el) return undefined
+    const observer = new ResizeObserver(([entry]) =>
+      setPreviewSize(previewSizeFor(entry.borderBoxSize[0]?.inlineSize ?? el.offsetWidth)),
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <LabelsContext.Provider value={options.labels}>
       {/* No bottom padding on the scroller: a sticky element stops at its scroller's padding edge, which
 			    would float the card's sticky footer above the pane's bottom. The spacer below pads instead. */}
-      <Box paddingX={[3, 4, 5]} paddingTop={[3, 4, 5]} style={{height: '100%', overflow: 'auto'}}>
+      <Box
+        ref={pane}
+        paddingX={[3, 4, 5]}
+        paddingTop={[3, 4, 5]}
+        style={{height: '100%', overflow: 'auto'}}
+      >
         <Stack gap={4} style={{maxWidth: 1000, margin: '0 auto'}}>
           <Stack gap={2}>
             <MetricsStrip
@@ -131,7 +166,7 @@ export function WebVitalsPane({options}: {options: ResolvedWebVitalsOptions}) {
               </Text>
             )}
           </Stack>
-          {options.previewUrl !== false && <SiteCard options={options} />}
+          {options.previewUrl !== false && <SiteCard options={options} size={previewSize} />}
         </Stack>
         <Box paddingBottom={[3, 4, 5]} />
       </Box>
@@ -567,7 +602,7 @@ function Sparkline({values}: {values: Array<number | null>}) {
   )
 }
 
-function SiteCard({options}: {options: ResolvedWebVitalsOptions}) {
+function SiteCard({options, size}: {options: ResolvedWebVitalsOptions; size: PreviewSize}) {
   const {basePath} = useWorkspace()
   const router = useRouter()
   const lastPublished = useLastPublished(options.lastPublishedQuery)
@@ -648,7 +683,7 @@ function SiteCard({options}: {options: ResolvedWebVitalsOptions}) {
       onMouseLeave={() => setCardHovered(false)}
       style={{
         position: 'relative',
-        aspectRatio: `${PREVIEW.width} / ${PREVIEW.height}`,
+        aspectRatio: `${size.width} / ${size.height}`,
         // `clip`, not `hidden`: a hidden overflow is a scroll container, which would pin the sticky
         // footer to the card instead of the pane.
         overflow: 'clip',
@@ -658,7 +693,7 @@ function SiteCard({options}: {options: ResolvedWebVitalsOptions}) {
         justifyContent: 'flex-end',
       }}
     >
-      <LivePreview key={reloads} src={previewUrl} onLoad={() => setLoaded(true)} />
+      <LivePreview key={reloads} src={previewUrl} size={size} onLoad={() => setLoaded(true)} />
 
       {!loaded && (
         <Skeleton
@@ -843,19 +878,17 @@ function ProgressiveBlur() {
  * The live home page at desktop width, scaled to fit and non-interactive. Pass a `previewUrl` with a
  * flag the site reads to skip analytics and popups, so editors opening the Studio are not counted.
  */
-function LivePreview({src, onLoad}: {src: string; onLoad: () => void}) {
+function LivePreview({src, size, onLoad}: {src: string; size: PreviewSize; onLoad: () => void}) {
   const frame = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(0)
 
   useLayoutEffect(() => {
     const el = frame.current
     if (!el) return undefined
-    const observer = new ResizeObserver(([entry]) =>
-      setScale(entry.contentRect.width / PREVIEW.width),
-    )
+    const observer = new ResizeObserver(([entry]) => setScale(entry.contentRect.width / size.width))
     observer.observe(el)
     return () => observer.disconnect()
-  }, [])
+  }, [size.width])
 
   return (
     <div ref={frame} style={{position: 'absolute', inset: 0, overflow: 'hidden'}}>
@@ -866,8 +899,8 @@ function LivePreview({src, onLoad}: {src: string; onLoad: () => void}) {
         aria-hidden
         onLoad={onLoad}
         style={{
-          width: PREVIEW.width,
-          height: PREVIEW.height,
+          width: size.width,
+          height: size.height,
           maxWidth: 'none',
           border: 0,
           pointerEvents: 'none',

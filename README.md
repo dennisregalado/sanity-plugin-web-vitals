@@ -40,7 +40,7 @@ export default defineConfig({
 | `labels`             | generic copy                  | `metrics` (each cell's `label`, `title`, `description`), `ratings`, `ranges`, `devices`, `sampleNotice`, `errorNotice` |
 | `sampleData`         | `true`                        | Show labelled sample numbers while the endpoint fails                                                                  |
 
-These are fixed on purpose: the layout, Sanity UI styling, device colours, the preview's 1440×900 render scaled to the card, the card's footer (progressive blur, sticky to the pane's bottom, title icon on card hover), and the Core Web Vitals rating thresholds.
+These are fixed on purpose: the layout, Sanity UI styling, device colours, the preview's render size scaled to the card (by the pane's own width, like sanity-preview-bar's devices: a 375×812 phone below 600px, a 768×1024 tablet below 1024px, 1440×900 desktop above), the card's footer (progressive blur, sticky to the pane's bottom, title icon on card hover), and the Core Web Vitals rating thresholds.
 
 Actions are `{ type: 'tool', title, tool }`, which opens a Studio tool in place (`tool` can include a path, e.g. `structure/page`), or `{ type: 'link', title, href, newTab? }`, which opens a URL in a new tab, relative to `siteUrl`. Menus also take `{ type: 'reload' }` and `{ type: 'divider' }`. Every item takes an optional `icon`.
 

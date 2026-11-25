@@ -120,7 +120,7 @@ The package is site-agnostic. Its defaults are generic ("Overview", "Edit site" 
 
 - **Put site-specific values in the app's `webVitals({...})` call**: names, tool names, URLs, wording, queries. Never edit the package to hard-code them.
 - **If the site needs something the options can't express**, add an option to the package with a generic default, and document it here and in the README. Do not fork the pane or copy it into the app.
-- **Fixed on purpose, not options**: the layout and Sanity UI styling, device colours, the preview's 1440×900 render scaled to the card, the card's footer (a progressive blur behind the title and buttons, stuck to the pane's bottom edge while the card runs past it, and the title's icon showing on card hover), and the Core Web Vitals rating thresholds (`good` ≤ 2.5 s LCP, ≤ 200 ms INP, ≤ 0.1 CLS). Change these in the package only for every site at once.
+- **Fixed on purpose, not options**: the layout and Sanity UI styling, device colours, the preview's render size scaled to the card (chosen by the pane's own width, not the window's, like `sanity-preview-bar`'s devices: a 375×812 phone below 600px, a 768×1024 tablet below 1024px, 1440×900 desktop above; the card takes the device's shape), the card's footer (a progressive blur behind the title and buttons, stuck to the pane's bottom edge while the card runs past it, and the title's icon showing on card hover), and the Core Web Vitals rating thresholds (`good` ≤ 2.5 s LCP, ≤ 200 ms INP, ≤ 0.1 CLS). Change these in the package only for every site at once.
 
 `previewUrl` should carry a flag the site reads to drop analytics, consent banners and popups for that request, so the preview is clean and is not counted. Add that check to the site. The plugin only loads the URL.
 
